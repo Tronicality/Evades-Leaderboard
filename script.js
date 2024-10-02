@@ -2,13 +2,13 @@
 // @name        Evades Leaderboard
 // @version     1.0.0
 // @description	Evades.io script to show recent runs on a leaderboard cuz HS managers can't.
-// @author      Script by: Br1h (.reality)
+// @author      Br1h (.reality)
 // @match       https://*.evades.io/
 // @match       https://*.evades.online/
 // @icon        https://www.google.com/s2/favicons?sz=64&domain=evades.io
 // @run-at      document-start
-// @downloadURL coming soon TM
-// @updateURL   coming soon TM
+// @downloadURL https://raw.githubusercontent.com/Tronicality/Evades-Leaderboard/refs/heads/main/script.js
+// @updateURL   https://raw.githubusercontent.com/Tronicality/Evades-Leaderboard/refs/heads/main/script.js
 // @grant       none
 // ==/UserScript==
 
