@@ -62,8 +62,8 @@ async function limitPost(limit, collection, documents) {
 
 // Calling Evades API
 async function getRuns(offset = 0) {
-    const response = await axios.get(`https://evades.io/api/runs?offset=${offset}`)
-    return response.data;
+    const response = await fetch(`https://evades.io/api/runs?offset=${offset}`)
+    return response.json();
 }
 
 async function getTotalAmountOfRuns() {
@@ -73,8 +73,7 @@ async function getTotalAmountOfRuns() {
 }
 
 async function getRangedRuns(amount, start = 0) {
-    let runs = [];
-    //console.log("Amount:", amount)
+    let runs = []
 
     for (let offset = start; offset > amount; offset = offset - 50) {
         const newRuns = await getRuns(offset);
@@ -90,10 +89,6 @@ async function getRangedRuns(amount, start = 0) {
         //console.log(`Run number: ${runs[runs.length - 1].id}, Latest run added: ${runs[runs.length - 1].username}`);
     }
     runs.sort((a, b) => a.id - b.id)
-    try {
-        console.log(`Returning: ${runs[runs.length - 1].username}`)
-    }
-    catch {}
 
     return runs;
 }
@@ -112,18 +107,6 @@ function findAdjacentTimestamps(epochTimestamp, timeRange) {
     const epochTimeAfter = Math.floor(timeAfter.getTime() / 1000);
 
     return {"before": epochTimeBefore, "after": epochTimeAfter};
-}
-
-async function findCloseByRuns(originalRun, desiredRun) {
-    // Impossible due to unknown amount of runs, (update) can use evades.io/api/runs/get_run/{id}
-    // Use evades api
-    if (originalRun.id - desiredRun.id > 20 || originalRun.id - desiredRun < 20) {
-        return undefined
-    }
-    const runs = getRuns(desiredRun.id)
-    const result = await findDuoPair(desiredRun, runs, originalRun)
-
-    return result
 }
 
 function isSameDuoNames(desiredRun, differentRun) {
@@ -308,11 +291,11 @@ function calcPlayerRank(maps, desiredPlayerName) {
     return rank
 }
 
-function findPlayerPoints(map_rankings) {
+function findPlayerPoints(mapRankings) {
     let soloPoints = 0;
     let duoPoints = 0;
 
-    for (const place of Object.values(map_rankings)) {
+    for (const place of Object.values(mapRankings)) {
         soloPoints += place.solo
         duoPoints += place.duo
     }
@@ -336,7 +319,7 @@ function rankPlayers(allPlayers) {
 
 function formatPlayer(maps, username) {
     const map_rankings = calcPlayerRank(maps, username)
-    return player = {
+    return {
         username: username,
         "map_rankings": map_rankings,
         "points": findPlayerPoints(map_rankings)
@@ -941,23 +924,26 @@ function populatePlayers(runs) {
             }
         }
     }
+    console.log("Filtered all runs")
     
     for (const name of usernames) {
         checkedUsers.push(formatPlayer(maps, name))
     }
+    console.log("Formatted all players")
     
     rankPlayers(checkedUsers)
+    console.log("Ranked all players")
 
     return checkedUsers
 }
 
 // Main
-let allRuns = [];
 let offloadRuns = new Set()
 
 async function main() {
     const total = await getTotalAmountOfRuns()
     const difference = 1000
+    let allRuns = []
 
     console.log("Total: ", total)
     
@@ -985,145 +971,3 @@ async function main() {
 }
 
 main()
-
-/*
-let testRuns = [{
-    "id": 142190,
-    "username": "KaBo0M",
-    "exp_level": 71,
-    "hero": "Mirage",
-    "survival_time": 328,
-    "region_name": "Quiet Quarry",
-    "area_index": 40,
-    "created_at": 0, //1723228047,
-    "interactions": [
-      "warmetic"
-    ]
-  },
-  {
-    "id": 142189,
-    "username": "warmetic",
-    "exp_level": 70,
-    "hero": "Mirage",
-    "survival_time": 329,
-    "region_name": "Quiet Quarry",
-    "area_index": 40,
-    "created_at": 1723228046,
-    "interactions": [
-      "KaBo0M"
-    ]
-  },
-  {
-    "id": 142188,
-    "username": "IHasHands",
-    "exp_level": 75,
-    "hero": "Shade",
-    "survival_time": 294,
-    "region_name": "Monumental Migration",
-    "area_index": 40,
-    "created_at": 1723228024,
-    "interactions": []
-  },
-  {
-    "id": 142187,
-    "username": "Fredぢ",
-    "exp_level": 53,
-    "hero": "Necro",
-    "survival_time": 287,
-    "region_name": "Ominous Occult Hard",
-    "area_index": 16,
-    "created_at": 1723227988,
-    "interactions": []
-  },
-  {
-    "id": 142186,
-    "username": "😿",
-    "exp_level": 43,
-    "hero": "Candy",
-    "survival_time": 143,
-    "region_name": "Peculiar Pyramid",
-    "area_index": 29,
-    "created_at": 1723227871,
-    "interactions": []
-  },
-  {
-    "id": 142185,
-    "username": "😿",
-    "exp_level": 73,
-    "hero": "Necro",
-    "survival_time": 346,
-    "region_name": "Elite Expanse",
-    "area_index": 40,
-    "created_at": 1723227298,
-    "interactions": []
-  },
-  {
-    "id": 142184,
-    "username": "Fredぢ",
-    "exp_level": 73,
-    "hero": "Magmax",
-    "survival_time": 261,
-    "region_name": "Central Core",
-    "area_index": 40,
-    "created_at": 1723227132,
-    "interactions": []
-  },
-  {
-    "id": 142183,
-    "username": "Vikenti",
-    "exp_level": 44,
-    "hero": "Candy",
-    "survival_time": 111,
-    "region_name": "Peculiar Pyramid",
-    "area_index": 29,
-    "created_at": 1723226827,
-    "interactions": []
-  },
-  {
-    "id": 142182,
-    "username": "Quietly",
-    "exp_level": 133,
-    "hero": "Viola",
-    "survival_time": 715,
-    "region_name": "Dangerous District Hard",
-    "area_index": 80,
-    "created_at": 1723226344,
-    "interactions": []
-  },
-  {
-    "id": 142181,
-    "username": "piger",
-    "exp_level": 72,
-    "hero": "Cybot",
-    "survival_time": 507,
-    "region_name": "Quiet Quarry",
-    "area_index": 40,
-    "created_at": 1723226124,
-    "interactions": [
-      "Fauderix"
-    ]
-  },
-  {
-    "id": 142180,
-    "username": "Fauderix",
-    "exp_level": 72,
-    "hero": "Cybot",
-    "survival_time": 477,
-    "region_name": "Quiet Quarry",
-    "area_index": 40,
-    "created_at": 1723226095,
-    "interactions": [
-      "piger"
-    ]
-}]
-const runs = formatRuns(testRuns);
-
-runs.then((result) => {
-    console.log(result);
-})
-/* The what ifs
-- Duo run gets cut off from array call 
-    - Solution 1: Call all runs first
-    - Solution 2: Call for that specific run
-- Duo run alr exists in 
-*/

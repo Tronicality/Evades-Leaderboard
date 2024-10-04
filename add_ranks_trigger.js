@@ -365,12 +365,12 @@ function findDuoIdentifier(usernames) {
     return `${usernames[0]} & ${usernames[1]}`
 }
 
-function filterSoloRuns(runs, limit = undefined) {
+function filterSoloRuns(runs, limit = null) {
     let result = []
     let usernames = new Set()
     
     for (let run of runs) {
-        if (limit) {
+        if (limit !== null) {
             if (result.length >= limit) {
                 break
             }
@@ -388,12 +388,12 @@ function filterSoloRuns(runs, limit = undefined) {
     return result
 }
 
-function filterDuoRuns(runs, limit = undefined) { 
+function filterDuoRuns(runs, limit = null) { 
     let result = []
     let usernames = new Set()
     
     for (let run of runs) {
-        if (limit) {
+        if (limit !== null) {
             if (result.length >= limit) {
                 break
             }
@@ -765,8 +765,8 @@ async function calcNewPlayerRank(username) {
 }
 
 async function updateRankings(playerCollection, newRun) {
-    const handleRankChange = async (playerCollection, isNewPlayer, map, isSolo, newRank, oldRank = undefined, duoPairName = undefined) => {
-        const map_rank_key = `map_rankings.${map}.${isSolo ? "solo" : "duo"}`
+    const handleRankChange = async (playerCollection, isNewPlayer, map, isSoloText, newRank, oldRank = undefined, duoPairName = undefined) => {
+        const map_rank_key = `map_rankings.${map}.${isSoloText}`
         const filter = { [map_rank_key]: { $gte: newRank } }
         const update = { $inc: { [map_rank_key]: 1 } }
     
@@ -775,7 +775,7 @@ async function updateRankings(playerCollection, newRun) {
             filter[map_rank_key].$lte = oldRank
         }
     
-        if (!isSolo && duoPairName) {
+        if (isSoloText === "duo" && duoPairName) {
             filter.username = { $ne: duoPairName }
         }
     
@@ -784,10 +784,11 @@ async function updateRankings(playerCollection, newRun) {
     
     const handleNewPlayer = async (playerCollection, run) => {
         const mapRankings = await calcNewPlayerRank(run.username)
+        const isSoloText = run.is_solo ? 'solo' : "duo"
 
         console.log(`Adding ${run.username}`)
 
-        await handleRankChange(playerCollection, true, findMap(run.region_name, run.area_index), run.is_solo, mapRankings[run.region_name][run.is_solo], undefined, run.pair)
+        await handleRankChange(playerCollection, true, findMap(run.region_name, run.area_index), isSoloText, mapRankings[run.region_name][isSoloText], undefined, run.pair)
         await playerCollection.insertOne({
             "username": run.username,
             "map_rankings": mapRankings,
@@ -798,17 +799,17 @@ async function updateRankings(playerCollection, newRun) {
     
     const handle_existing_player = async (playerCollection, oldMapRankings, run) => {
         const map = findMap(run.region_name, run.area_index)
-        const isSolo = (run.is_solo) ? 'solo' : "duo"
         const newRank = await calcSingleMapRank(oldMapRankings[map], run)
+        const isSoloText = (run.is_solo) ? 'solo' : "duo"
 
-        console.log(`Caught ${run.username} ${isSolo}ing ${map}`)
+        console.log(`Caught ${run.username} ${isSoloText}ing ${map}`)
         
-        if (newRank !== oldMapRankings[map][isSolo] && newRank !== null) {
-            const mapRankKey = `map_rankings.${map}.${isSolo}`
+        if (newRank !== oldMapRankings[map][isSoloText] && newRank !== null) {
+            const mapRankKey = `map_rankings.${map}.${isSoloText}`
 
             console.log(`Updating ${run.username}`)
 
-            await handleRankChange(playerCollection, false, map, run.is_solo, newRank, oldMapRankings[map][isSolo], run.pair)
+            await handleRankChange(playerCollection, false, map, isSoloText, newRank, oldMapRankings[map][isSoloText], run.pair)
             await playerCollection.updateOne({ "username": run.username },
                 { $set: { [mapRankKey]: newRank } }
             )   

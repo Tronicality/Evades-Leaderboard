@@ -127,7 +127,7 @@ async function postNewRuns(newRuns) {
     }
     const status = await callDatabaseStatus("insertMany", data)
 
-    if (status && status.status !== 200) {
+    if (status && status.status !== 201) {
         console.log(status)
     }
 }
