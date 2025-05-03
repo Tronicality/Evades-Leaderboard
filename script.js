@@ -15,15 +15,6 @@
 const baseURL = 'https://evades-runs-server.glitch.me/'
 fetch(baseURL)
 
-let currentRegion
-let currentSelectedAreaIndex = ""
-var savedRuns = {}
-let heroColors
-let isShowingRecords = false
-let isSolo = true
-let currentController = null
-let isIngame = false
-
 const maps = {
     "Burning Bunker": 36,
     "Burning Bunker Hard": 36,
@@ -77,7 +68,9 @@ const maps = {
     "Vicious Valley Hard": 40,
     "Wacky Wonderland": 80,
     "Wacky Wonderland Hard": 80,
-    "Withering Wasteland": 40
+    "Withering Wasteland": 40,
+    "Terrifying Temple": 40,
+    "Research Lab": 40,
 }
 
 const multipleWinMaps = { // Key: area number, Value: Specified map end point
@@ -125,6 +118,16 @@ const reverseMultipleWinMaps = {
     "Peculiar Pyramid Inner Hard": "Peculiar Pyramid Hard",
     "Peculiar Pyramid Perimeter Hard": "Peculiar Pyramid Hard"
 }
+
+let currentRegion
+let currentSelectedAreaIndex = ""
+let savedRuns = {}
+let heroColors
+let isShowingRecords = false
+let isSolo = true
+let currentController = null
+let isIngame = false
+let activationKey = "+"
 
 function getHeroColors() {
     try {
@@ -217,7 +220,6 @@ function hexToRgba(hex, alpha = 1) {
         console.log(`Could not translate hex color. Hex: ${hex}`)
         return `rgba(0, 0, 0, ${alpha})`
     }
-    
 }
 
 function setHeroSoloBackground(hero) {
@@ -281,7 +283,7 @@ function handleUserRun(userRun, isEE2) {
         const styleHTML = `display: ${(isSolo) ? "block" : "none"}`;
         innerHTML += `<li class="spSoloRun" style="${styleHTML}"> Complete this Map!</li>`
     }
-    
+
 
     if (userRun.duo !== null) {
         // Differentiating between user and duo partner
@@ -307,7 +309,7 @@ function handleUserRun(userRun, isEE2) {
         const styleHTML = `display: ${(isSolo) ? "none" : "block"}`;
         innerHTML += `<li class="spDuoRun" style="${styleHTML}"> Complete this map with someone!</li>`
     }
-    
+
     return innerHTML
 }
 
@@ -382,7 +384,7 @@ async function getMapRuns(regionName, hasMultipleAreaIndexes, controller) {
         areaIndex = Number(document.getElementById("spAreaIndexes").value)
         regionName = reverseMultipleWinMaps[regionName]
     }
-    else{
+    else {
         areaIndex = maps[regionName]
     }
 
@@ -397,7 +399,7 @@ async function getMapRuns(regionName, hasMultipleAreaIndexes, controller) {
     }
 
     playerRankPromise = callPlayerMapRank(window.client.main.name, regionName, areaIndex, controller)
-    
+
 
     const [topRuns, userRun, playerRank] = await Promise.all([
         Promise.all([topRunsPromises.solo, topRunsPromises.duo]),
@@ -433,7 +435,7 @@ function handleAreaIndexes(map) {
 
         areaIndexes.appendChild(option)
     }
-    
+
     areaIndexes.style.display = "block";
 }
 
@@ -480,7 +482,7 @@ async function changeRuns() {
         }
         const newController = new AbortController()
         currentController = newController
-        
+
         // Handle Loading
         if (savedRuns[map] && (!hasMultipleAreaIndexes || newAreaIndex !== null)) {
             showStatusMessage(`Old ${map} runs`, "red")
@@ -490,13 +492,13 @@ async function changeRuns() {
             hideStatusMessage()
             showLoading()
         }
-        
+
         // Handle actually showing the runs
         try {
             savedRuns[map] = await getMapRuns(map, hasMultipleAreaIndexes, newController)
             populateContainers(map)
             showStatusMessage("Fetched Runs", "green")
-        } 
+        }
         catch (error) {
             if (error !== `${window.client.main.name} has changed maps`) {
                 console.log("Error fetching data: ", error)
@@ -534,7 +536,7 @@ async function changeRuns() {
                 // In a mutli win map but using different index
                 await handleMultiWinMaps(regionName, areaIndexes.value)
             }
-        } 
+        }
         else {
             showStatusMessage("Invalid map", "red")
         }
@@ -641,8 +643,8 @@ function setupContainer() {
     overlay.appendChild(loadingElement)
     overlay.appendChild(document.createElement("br"))
     overlay.appendChild(userRuns)
-    
-    
+
+
 
     new MutationObserver((_, observer) => {
         const leaderboard = document.getElementById("leaderboard")
@@ -666,12 +668,12 @@ function toggleRecords() {
             document.getElementById('spOverlay').style.display = "block"
             isShowingRecords = true;
             console.log("on")
-        }   
+        }
     }
 }
 
-function handleKey (event) {
-    if (event.key === '+'){
+function handleKey(event) {
+    if (event.key === activationKey) {
         toggleRecords()
     }
 }
@@ -698,29 +700,29 @@ setTimeout(() => {
             },
 
             events: {
-                emit: () => {},
+                emit: () => { },
                 events: {
                     chatMessage: {}
                 }
             },
 
-            drBefore: () => {return;},
+            drBefore: () => { return; },
 
-            checkMsg: () => {return true;},
-            checkMsgSend: (value) => { return value;},
+            checkMsg: () => { return true; },
+            checkMsgSend: (value) => { return value; },
 
             grb: { on: false }
         }
 
         window.replaces = {
-            id2: () => {return ;}
+            id2: () => { return; }
         };
 
         window.tags = {
-            getChatTag: () => {return false;}
+            getChatTag: () => { return false; }
         }
 
-        window.loadGame = () => {}
+        window.loadGame = () => { }
     }
 
     main()

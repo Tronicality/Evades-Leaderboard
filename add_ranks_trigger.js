@@ -51,7 +51,9 @@ const maps = {
     "Vicious Valley Hard": 40,
     "Wacky Wonderland": 80,
     "Wacky Wonderland Hard": 80,
-    "Withering Wasteland": 40
+    "Withering Wasteland": 40,
+    "Terrifying Temple": 40,
+    "Research Lab": 40,
 }
 
 const multipleWinMaps = { //Key: area number, Value: Specified map end point
@@ -120,7 +122,7 @@ function convertPlayerDuoToSolo(desiredPlayerName, run) {
     let pair = run.players.find(player => player.username !== desiredPlayerName)?.username
 
     const { region_name, area_index, is_solo, final_survival_time } = run
-    return {...player, region_name, area_index, is_solo, final_survival_time, pair }
+    return { ...player, region_name, area_index, is_solo, final_survival_time, pair }
 }
 
 function checkSpecificCase(run) {
@@ -136,6 +138,9 @@ function checkSpecificCase(run) {
         "Weyofae60", // Bug with mod hidden names
         "puvuo80", // Bug with mod hidden names
         "SharedAccount01", // TAS / Shared Account
+        "SharedAccount04", // TAS / Shared Account
+        "SharedAccount08", // TAS / Shared Account
+        "SharedAccount69", // TAS / Shared Account
         "helmet", // Shared Account
         "Aekiyra", // TAS
         "5302", // TAS
@@ -147,7 +152,14 @@ function checkSpecificCase(run) {
         "femalevent", // TAS
         "Ayubbie2", // TAS
         "Вишня", // TAS
-        "EvadesTAS" // TAS
+        "EvadesTAS", // TAS
+        "TAS1‍", // Sus
+        "blench", // Unknown Alt
+        "Azpect", // Unknown Alt
+        "yapper", // Unknown Alt
+        "Blue‍", // Unknown Alt
+        "Septimus", // Unknown Alt
+        "TASSLAYER", // Unknown Alt (surely not BOTSLAYER)
     ])
     const altList = { // key: AltName, value: Main Name
         "ö": "Vikenti",
@@ -157,8 +169,9 @@ function checkSpecificCase(run) {
         "R0‎YqL": "R0YqL",
         "WeDieAtCC2": "R0YqL",
         "Oplus": "R0YqL",
-        "चमक" : "Bluemonkey14",
+        "चमक": "Bluemonkey14",
         "HumogousHollowWR": "Bluemonkey14",
+        "Freakbob": "Bluemonkey14",
         "Oriku": "Zxynn",
         "Aеther": "Rxpct",
         "globeX": "Invi",
@@ -179,10 +192,11 @@ function checkSpecificCase(run) {
         "Bot3": "Strat",
         "Bot4": "Strat",
         "Bot5": "Strat",
+        "thrillseeker": "Strat",
         "yespiger": "piger",
         "nopiger": "piger",
         "🐻‍❄️": "merin",
-        "begro": "tтеуmlI", 
+        "begro": "tтеуmlI",
         "Gսest9113": "9113Guest",
         "crunchypoop43": "9113Guest",
         "PoppaSnail": "9113Guest",
@@ -205,6 +219,8 @@ function checkSpecificCase(run) {
         "carnation": "Greeny",
         "Groen": "Greeny",
         "Mirage​​": "Greeny",
+        "Verdoso": "Greeny",
+        "D2A": "Proyo",
         "hoodlumgorilla69": "Unluckyuser",
         "ThatHodgeGuy": "Hodge",
         "TheSnake": "lazer3",
@@ -215,6 +231,16 @@ function checkSpecificCase(run) {
         "trentsigma": "Darkai",
         "õ": "Exobyte",
         "GayDogPower": "Exobyte",
+        "God‍": "Exobyte",
+        "Stongo": "Exobyte",
+        "Cookiezi": "Exobyte",
+        "Cr1h": "Exobyte",
+        "PaLM": "Exobyte",
+        "维生素C": "Exobyte",
+        "タスボット": "Exobyte",
+        "silence%E2%80%8D": "Exobyte",
+        "Thunderbolt": "Exobyte",
+        "Ardently": "Exobyte",
         "rainstorm": "Lunari",
         "Bo1t": "Lunari",
         "Kwazi": "denji",
@@ -223,7 +249,6 @@ function checkSpecificCase(run) {
         "CatManAlt2": "CatManPro",
         "CatManAlt3": "CatManPro",
         "CatManAlt5": "CatManPro",
-        "Cookiezi": "Ardently",
         "NameGame2": "ThenameGame",
         "NameGame3": "ThenameGame",
         "NameGame5": "ThenameGame",
@@ -235,7 +260,7 @@ function checkSpecificCase(run) {
         "Lumik3": "Lumik",
         "Lumik4": "Lumik",
         "Frauderix": "•RoSe•",
-        "•eSoR•": "•RoSe•",     
+        "•eSoR•": "•RoSe•",
         "🌔Moon🌔": "MagmaxOnly",
         "типаПРO": "GayFuryFemboy",
         "Somebody77Alt": "Somebody77",
@@ -271,7 +296,6 @@ function checkSpecificCase(run) {
         "a single friend": "a single friend",
         "rainstorm": "Lunari",
         "░▒▓गớჳӣҭӣɃ▓▒░1": "░▒▓गớჳӣҭӣɃ▓▒░",
-        
         "░▒▓गớჳӣҭӣɃ▓▒░2": "░▒▓गớჳӣҭӣɃ▓▒░",
         "𝓟𝓘𝓝𝓔𝓜𝓞2": "𝓟𝓘𝓝𝓔𝓜𝓞",
         "♔𝒢𝒜𝑀𝐸~oVeR♔✭": "♔𝒢𝒜𝑀𝐸~oVeR♔✭",
@@ -283,14 +307,15 @@ function checkSpecificCase(run) {
     const caseChanges = { // Every attribute from the run is able to be checked upon
         "hero": {
             "Euclid": 1722801600,
-            "Glob": 1722801600,
+            "Glob": 1745006400,
             "Stheno": 1722801600,
             "Demona": 1720123200,
             "Cybot": 1727463600,
-            "Factorb": 1722801600,
+            "Factorb": 1740772800,
             "Ignis": 1722801600,
             "Mortuus": 1722801600,
-            "Rime": 17233632000
+            "Rime": 17233632000,
+            "Reaper": 1742587200
         },
         "region_name": {
             "Glacial Gorge Hard": 1718568000,
@@ -301,7 +326,8 @@ function checkSpecificCase(run) {
             "Humongous Hollow": 1722801600,
             "Endless Echo": 1722801600,
             "Endless Echo Hard": 1722801600,
-            "Shifting Sands": 1722801600
+            "Shifting Sands": 1722801600,
+            "Research Lab": 1740772800
         }
     }
 
@@ -342,7 +368,7 @@ function checkSpecificCase(run) {
 
         run.username = getAltName(run.username)
     }
-    else{
+    else {
         for (let player of run.players) {
             if (!validateRun(convertPlayerDuoToSolo(player.username, run))) {
                 return [run, false]
@@ -368,7 +394,7 @@ function findDuoIdentifier(usernames) {
 function filterSoloRuns(runs, limit = null) {
     let result = []
     let usernames = new Set()
-    
+
     for (let run of runs) {
         if (limit !== null) {
             if (result.length >= limit) {
@@ -388,10 +414,10 @@ function filterSoloRuns(runs, limit = null) {
     return result
 }
 
-function filterDuoRuns(runs, limit = null) { 
+function filterDuoRuns(runs, limit = null) {
     let result = []
     let usernames = new Set()
-    
+
     for (let run of runs) {
         if (limit !== null) {
             if (result.length >= limit) {
@@ -435,7 +461,7 @@ async function getFasterSoloRuns(playerRun) {
             }
         ]
 
-        
+
         const response = await context.services.get("Evades-Runs").db("leaderboards").collection("runs").aggregate(pipeline).toArray()
 
         // Filtering for lower survival time, higher area index
@@ -447,7 +473,7 @@ async function getFasterSoloRuns(playerRun) {
                 runs.push(run)
             }
         }
-        
+
     }
     else {
         pipeline = [
@@ -485,7 +511,7 @@ async function getFasterDuoRuns(playerRun) {
             }
         ]
 
-        
+
         response = await context.services.get("Evades-Runs").db("leaderboards").collection("runs").aggregate(pipeline).toArray()
 
         // Filtering for lower survival time, higher area index
@@ -497,7 +523,7 @@ async function getFasterDuoRuns(playerRun) {
                 runs.push(run)
             }
         }
-        
+
     }
     else {
         pipeline = [
@@ -513,7 +539,7 @@ async function getFasterDuoRuns(playerRun) {
             }
         ]
 
-        
+
         runs = await context.services.get("Evades-Runs").db("leaderboards").collection("runs").aggregate(pipeline).toArray()
     }
 
@@ -552,7 +578,7 @@ async function getSoloPlayerRun(username, regionName, areaIndex) {
                 }
             }, {
                 '$sort': {
-                    'survival_time': 1, 
+                    'survival_time': 1,
                     'created_at': 1
                 }
             }, {
@@ -677,7 +703,7 @@ async function getDuoRunCount(regionName, areaIndex) {
 
 async function calcSingleMapRank(oldRank, playerRun) {
     let newRank
-    
+
     if (playerRun.is_solo) {
         const fasterSoloRuns = await getFasterSoloRuns(playerRun)
         const isWR = (fasterSoloRuns.length === 1 && fasterSoloRuns[0].id === playerRun.id)
@@ -724,7 +750,7 @@ async function calcSingleMapRank(oldRank, playerRun) {
 async function calcNewPlayerRank(username) {
     const calcSoloCount = async (username, regionName, areaIndex) => {
         const soloPlayerRun = await getSoloPlayerRun(username, regionName, areaIndex)
-    
+
         let soloCount
         if (soloPlayerRun) {
             soloCount = await getFasterSoloRuns(soloPlayerRun)
@@ -733,13 +759,13 @@ async function calcNewPlayerRank(username) {
         else {
             soloCount = await getSoloRunCount(regionName, areaIndex) + 1
         }
-    
+
         return soloCount
     }
 
     const calcDuoCount = async (username, regionName, areaIndex) => {
         const duoPlayerRun = await getDuoPlayerRun(username, regionName, areaIndex)
-    
+
         let duoCount
         if (duoPlayerRun) {
             duoCount = await getFasterDuoRuns(duoPlayerRun)
@@ -748,7 +774,7 @@ async function calcNewPlayerRank(username) {
         else {
             duoCount = await getDuoRunCount(regionName, areaIndex) + 1
         }
-    
+
         return duoCount
     }
 
@@ -769,19 +795,19 @@ async function updateRankings(playerCollection, newRun) {
         const map_rank_key = `map_rankings.${map}.${isSoloText}`
         const filter = { [map_rank_key]: { $gte: newRank } }
         const update = { $inc: { [map_rank_key]: 1 } }
-    
+
         if (!isNewPlayer && oldRank) {
             // Keeping consistent numbers (eg 1, 2, 3 instead of 1, 3)
             filter[map_rank_key].$lte = oldRank
         }
-    
+
         if (isSoloText === "duo" && duoPairName) {
             filter.username = { $ne: duoPairName }
         }
-    
+
         await playerCollection.updateMany(filter, update)
     }
-    
+
     const handleNewPlayer = async (playerCollection, run) => {
         const mapRankings = await calcNewPlayerRank(run.username)
         const isSoloText = run.is_solo ? 'solo' : "duo"
@@ -793,17 +819,17 @@ async function updateRankings(playerCollection, newRun) {
             "username": run.username,
             "map_rankings": mapRankings,
             "points": {}, // Calculated in a different trigger
-            "position":  {} // Calculated in a different trigger
+            "position": {} // Calculated in a different trigger
         })
     }
-    
+
     const handle_existing_player = async (playerCollection, oldMapRankings, run) => {
         const map = findMap(run.region_name, run.area_index)
         const newRank = await calcSingleMapRank(oldMapRankings[map], run)
         const isSoloText = (run.is_solo) ? 'solo' : "duo"
 
         console.log(`Caught ${run.username} ${isSoloText}ing ${map}`)
-        
+
         if (newRank !== oldMapRankings[map][isSoloText] && newRank !== null) {
             const mapRankKey = `map_rankings.${map}.${isSoloText}`
 
@@ -812,7 +838,7 @@ async function updateRankings(playerCollection, newRun) {
             await handleRankChange(playerCollection, false, map, isSoloText, newRank, oldMapRankings[map][isSoloText], run.pair)
             await playerCollection.updateOne({ "username": run.username },
                 { $set: { [mapRankKey]: newRank } }
-            )   
+            )
         }
     }
 
@@ -889,28 +915,28 @@ const changeEvent = {
         },
         {
             "players": [
-              {
-                "id": 154534,
-                "username": "Zxynn",
-                "hero": "Candy",
-                "exp_level": 67,
-                "survival_time": 179,
-                "created_at": 1727516985
-              },
-              {
-                "id": 154533,
-                "username": "Invi",
-                "hero": "Factorb",
-                "exp_level": 66,
-                "survival_time": 180,
-                "created_at": 1727516985
-              }
+                {
+                    "id": 154534,
+                    "username": "Zxynn",
+                    "hero": "Candy",
+                    "exp_level": 67,
+                    "survival_time": 179,
+                    "created_at": 1727516985
+                },
+                {
+                    "id": 154533,
+                    "username": "Invi",
+                    "hero": "Factorb",
+                    "exp_level": 66,
+                    "survival_time": 180,
+                    "created_at": 1727516985
+                }
             ],
             "final_survival_time": 180,
             "region_name": "Grand Garden",
             "area_index": 28,
             "is_solo": false
-          }
+        }
     ]
 }
 

@@ -1,13 +1,13 @@
 async function updateChangedRanks(player_collection, allPlayers, changedUsernames, limit) {
-    for (let i = 0 ; i < changedUsernames.length ; i = i + limit) {
+    for (let i = 0; i < changedUsernames.length; i = i + limit) {
         const users = []
 
-        for (let j = i ; j < i + limit ; j++) {
+        for (let j = i; j < i + limit; j++) {
             const username = changedUsernames[j]
 
             if (username) {
                 const player = allPlayers.find(p => p.username === username)
-                
+
                 users.push(player_collection.updateOne({ "username": username },
                     {
                         $set: {
@@ -15,7 +15,7 @@ async function updateChangedRanks(player_collection, allPlayers, changedUsername
                             "position": player.position
                         }
                     }))
-            }    
+            }
         }
 
         await Promise.all(users)
@@ -50,12 +50,12 @@ function findAllPlayersPoints(allPlayers, changedUsernames) {
     const calcPlayerPoints = (map_rankings) => {
         let soloPoints = 0;
         let duoPoints = 0;
-    
+
         for (const place of Object.values(map_rankings)) {
             soloPoints += place.solo
             duoPoints += place.duo
         }
-    
+
         return { "solo": soloPoints, "duo": duoPoints, "overall": soloPoints + duoPoints }
     }
 
@@ -81,5 +81,5 @@ exports = async function () {
 
     findAllPlayersPoints(allPlayers, changedUsernames)
     rankPlayers(allPlayers, changedUsernames)
-    updateChangedRanks(player_collection, allPlayers, Array.from(changedUsernames), 1000)
+    await updateChangedRanks(player_collection, allPlayers, Array.from(changedUsernames), 1000)
 }

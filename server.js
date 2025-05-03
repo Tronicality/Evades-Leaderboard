@@ -20,7 +20,7 @@ app.listen(PORT, () => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Server is running and received a ping!');
+    res.send('Server is running and received a ping!');
 });
 
 // Handling database
@@ -43,7 +43,7 @@ async function getRangedRuns(amount, start = 0, step = 50) {
         const newRuns = await getRuns(offset);
         runs = runs.concat(newRuns);
     }
-  
+
     console.log(`latest_run_added: ${runs[0].username}(${runs[0].hero}) doing ${runs[0].region_name}(${runs[0].area_index}) with ${runs[0].survival_time}s`);
     //console.log("Returning: " + runs[runs.length - 1].username)
     return runs;
@@ -69,7 +69,7 @@ async function callDatabase(query, data, controller) {
         data: data,
         signal: controller.signal
     })
-    
+
     if (query.includes("One")) {
         return response.data.document
     }
@@ -103,7 +103,7 @@ function writeJson(file, data) {
 async function getDocumentCountInDatabase() {
     const count = await readJson("amount.json")
     return count.amount
-    
+
     /*
     const data = {
         "collection": "runs",
@@ -162,7 +162,7 @@ function findAdjacentTimestamps(epochTimestamp, timeRange) {
     const epochTimeBefore = Math.floor(timeBefore.getTime() / 1000);
     const epochTimeAfter = Math.floor(timeAfter.getTime() / 1000);
 
-    return {"before": epochTimeBefore, "after": epochTimeAfter};
+    return { "before": epochTimeBefore, "after": epochTimeAfter };
 }
 
 function validateLinkedRun(desiredRun, differentRun, timestamps = undefined) {
@@ -212,7 +212,7 @@ async function findDuoPair(desiredRun, allRuns) {
     const result = await findCloseByRuns(originalRun, desiredRun)
     return result
     */
-   return undefined
+    return undefined
 }
 
 function isSameDuoNames(desiredRun, differentRun) {
@@ -229,7 +229,7 @@ function hasDuoRunBeenFormatted(desiredRun, AllRuns) {
         if (differentRun.region_name === desiredRun.region_name && differentRun.area_index === desiredRun.area_index) {
             if (!differentRun.interactions) {
                 // This specific run has already been formatted, so reversing the format (interactions does not exist in the new format)
-    
+
                 differentRun = {
                     "username": differentRun.players[0].username,
                     "interactions": [differentRun.players[1].username]
@@ -239,7 +239,7 @@ function hasDuoRunBeenFormatted(desiredRun, AllRuns) {
             if (isSameDuoNames(desiredRun, differentRun)) {
                 return true
             }
-        }   
+        }
     }
 
     return false
@@ -281,10 +281,10 @@ async function formatDuoRuns(runs) {
                 }
 
                 duoPairs.push(formattedResult)
-            }            
-        }    
+            }
+        }
     }
-    
+
     return duoPairs
 }
 
@@ -302,7 +302,7 @@ async function formatRuns(runs) {
 
     soloRuns = formatSoloRuns(soloRuns)
     duoRuns = await formatDuoRuns(duoRuns)
-    
+
     return soloRuns.concat(duoRuns)
 
     //return runs
@@ -312,21 +312,21 @@ const databaseCrossCheck = async () => {
     try {
         const evadesRunAmount = await getTotalAmountOfRuns()
         const runAmountDifference = evadesRunAmount - await getDocumentCountInDatabase()
-        
-        if (runAmountDifference > 0) {
-        let missingRuns = await getRangedRuns(runAmountDifference)
 
-        missingRuns = removeDuplicateRuns(missingRuns, runAmountDifference)
-        missingRuns = await formatRuns(missingRuns)
-        
-        if (missingRuns.length > 0) {
-            await postNewRuns(missingRuns)
-        }
-        
-        writeJson("amount.json", {"amount": evadesRunAmount})
-        
-        console.log("new amount: " + evadesRunAmount)
-        console.log(`${runAmountDifference} new run(s) added`)
+        if (runAmountDifference > 0) {
+            let missingRuns = await getRangedRuns(runAmountDifference)
+
+            missingRuns = removeDuplicateRuns(missingRuns, runAmountDifference)
+            missingRuns = await formatRuns(missingRuns)
+
+            if (missingRuns.length > 0) {
+                await postNewRuns(missingRuns)
+            }
+
+            writeJson("amount.json", { "amount": evadesRunAmount })
+
+            console.log("new amount: " + evadesRunAmount)
+            console.log(`${runAmountDifference} new run(s) added`)
         }
         else {
             console.log("No new runs added")
@@ -392,7 +392,9 @@ const regions = {
     "Vicious Valley Hard": 40,
     "Wacky Wonderland": 80,
     "Wacky Wonderland Hard": 80,
-    "Withering Wasteland": 40
+    "Withering Wasteland": 40,
+    "Terrifying Temple": 40,
+    "Research Lab": 40,
 }
 const multipleWinRegions = { // Key: area number, Value: Specified map end point
     "Monumental Migration": {
@@ -431,8 +433,9 @@ const altList = { // key: AltName, value: Main Name
     "R0‎YqL": "R0YqL",
     "WeDieAtCC2": "R0YqL",
     "Oplus": "R0YqL",
-    "चमक" : "Bluemonkey14",
+    "चमक": "Bluemonkey14",
     "HumogousHollowWR": "Bluemonkey14",
+    "Freakbob": "Bluemonkey14",
     "Oriku": "Zxynn",
     "Aеther": "Rxpct",
     "globeX": "Invi",
@@ -453,10 +456,11 @@ const altList = { // key: AltName, value: Main Name
     "Bot3": "Strat",
     "Bot4": "Strat",
     "Bot5": "Strat",
+    "thrillseeker": "Strat",
     "yespiger": "piger",
     "nopiger": "piger",
     "🐻‍❄️": "merin",
-    "begro": "tтеуmlI", 
+    "begro": "tтеуmlI",
     "Gսest9113": "9113Guest",
     "crunchypoop43": "9113Guest",
     "PoppaSnail": "9113Guest",
@@ -479,6 +483,8 @@ const altList = { // key: AltName, value: Main Name
     "carnation": "Greeny",
     "Groen": "Greeny",
     "Mirage​​": "Greeny",
+    "Verdoso": "Greeny",
+    "D2A": "Proyo",
     "hoodlumgorilla69": "Unluckyuser",
     "ThatHodgeGuy": "Hodge",
     "TheSnake": "lazer3",
@@ -489,6 +495,16 @@ const altList = { // key: AltName, value: Main Name
     "trentsigma": "Darkai",
     "õ": "Exobyte",
     "GayDogPower": "Exobyte",
+    "God‍": "Exobyte",
+    "Stongo": "Exobyte",
+    "Cookiezi": "Exobyte",
+    "Cr1h": "Exobyte",
+    "PaLM": "Exobyte",
+    "维生素C": "Exobyte",
+    "タスボット": "Exobyte",
+    "silence%E2%80%8D": "Exobyte",
+    "Thunderbolt": "Exobyte",
+    "Ardently": "Exobyte",
     "rainstorm": "Lunari",
     "Bo1t": "Lunari",
     "Kwazi": "denji",
@@ -497,7 +513,6 @@ const altList = { // key: AltName, value: Main Name
     "CatManAlt2": "CatManPro",
     "CatManAlt3": "CatManPro",
     "CatManAlt5": "CatManPro",
-    "Cookiezi": "Ardently",
     "NameGame2": "ThenameGame",
     "NameGame3": "ThenameGame",
     "NameGame5": "ThenameGame",
@@ -509,7 +524,7 @@ const altList = { // key: AltName, value: Main Name
     "Lumik3": "Lumik",
     "Lumik4": "Lumik",
     "Frauderix": "•RoSe•",
-    "•eSoR•": "•RoSe•",     
+    "•eSoR•": "•RoSe•",
     "🌔Moon🌔": "MagmaxOnly",
     "типаПРO": "GayFuryFemboy",
     "Somebody77Alt": "Somebody77",
@@ -545,7 +560,6 @@ const altList = { // key: AltName, value: Main Name
     "a single friend": "a single friend",
     "rainstorm": "Lunari",
     "░▒▓गớჳӣҭӣɃ▓▒░1": "░▒▓गớჳӣҭӣɃ▓▒░",
-    
     "░▒▓गớჳӣҭӣɃ▓▒░2": "░▒▓गớჳӣҭӣɃ▓▒░",
     "𝓟𝓘𝓝𝓔𝓜𝓞2": "𝓟𝓘𝓝𝓔𝓜𝓞",
     "♔𝒢𝒜𝑀𝐸~oVeR♔✭": "♔𝒢𝒜𝑀𝐸~oVeR♔✭",
@@ -582,6 +596,9 @@ function checkSpecificCase(run) {
         "Weyofae60", // Bug with mod hidden names
         "puvuo80", // Bug with mod hidden names
         "SharedAccount01", // TAS / Shared Account
+        "SharedAccount04", // TAS / Shared Account
+        "SharedAccount08", // TAS / Shared Account
+        "SharedAccount69", // TAS / Shared Account
         "helmet", // Shared Account
         "Aekiyra", // TAS
         "5302", // TAS
@@ -593,19 +610,27 @@ function checkSpecificCase(run) {
         "femalevent", // TAS
         "Ayubbie2", // TAS
         "Вишня", // TAS
-        "EvadesTAS" // TAS
+        "EvadesTAS", // TAS
+        "TAS1‍", // Sus
+        "blench", // Unknown Alt
+        "Azpect", // Unknown Alt
+        "yapper", // Unknown Alt
+        "Blue‍", // Unknown Alt
+        "Septimus", // Unknown Alt
+        "TASSLAYER", // Unknown Alt (surely not BOTSLAYER)
     ])
     const caseChanges = { // Every attribute from the run is able to be checked upon
         "hero": {
             "Euclid": 1722801600,
-            "Glob": 1722801600,
+            "Glob": 1745006400,
             "Stheno": 1722801600,
             "Demona": 1720123200,
             "Cybot": 1727463600,
-            "Factorb": 1722801600,
+            "Factorb": 1740772800,
             "Ignis": 1722801600,
             "Mortuus": 1722801600,
-            "Rime": 17233632000
+            "Rime": 17233632000,
+            "Reaper": 1742587200
         },
         "region_name": {
             "Glacial Gorge Hard": 1718568000,
@@ -616,10 +641,11 @@ function checkSpecificCase(run) {
             "Humongous Hollow": 1722801600,
             "Endless Echo": 1722801600,
             "Endless Echo Hard": 1722801600,
-            "Shifting Sands": 1722801600
+            "Shifting Sands": 1722801600,
+            "Research Lab": 1740772800
         }
     }
-    
+
     const validateRun = (run) => {
         // Validating by created_at time
         // Checking for updates against case (eg: hero, map) changes
@@ -642,9 +668,9 @@ function checkSpecificCase(run) {
     }
     const convertDuoPlayerToSolo = (desiredPlayerName, run) => {
         let player = run.players.find(player => player.username === desiredPlayerName)
-        
+
         const { region_name, area_index, is_solo } = run
-        return {...player, region_name, area_index, is_solo }
+        return { ...player, region_name, area_index, is_solo }
     }
     const getAltName = (username) => {
         return (altList[username] || username)
@@ -663,7 +689,7 @@ function checkSpecificCase(run) {
 
         run.username = getAltName(run.username)
     }
-    else{
+    else {
         for (let player of run.players) {
             if (!validateRun(convertDuoPlayerToSolo(player.username, run))) {
                 return [run, false]
@@ -684,7 +710,7 @@ function checkSpecificCase(run) {
 function FilterSoloRuns(runs, limit = undefined) {
     let result = []
     let usernames = new Set()
-    
+
     for (let run of runs) {
         // Limiting amount of results
         if (limit) {
@@ -722,7 +748,7 @@ function getDuoIdentifier(usernames) {
 function FilterDuoRuns(runs, limit = undefined) {
     let result = []
     let usernames = new Set()
-    
+
     for (let run of runs) {
         // Limiting amount of results
         if (limit) {
@@ -750,14 +776,14 @@ function FilterDuoRuns(runs, limit = undefined) {
     else if (result.length === 1) {
         return result[0]
     }
-    
+
     return result
 }
 
 app.post('/get_rankings/player', async (req, res) => {
     // request = {"username"}
     const username = (altList[req.body.username] || req.body.username)
-    
+
     const data = {
         "collection": "players",
         "database": "leaderboards",
@@ -776,7 +802,7 @@ app.post('/get_rankings/player', async (req, res) => {
             res.send(rank)
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -792,7 +818,7 @@ app.post('/get_rankings/player/map', async (req, res) => {
     const area_index = req.body.area_index
     const region_name = findMap(req.body.region_name, area_index) || req.body.region_name
     const map_rank_key = `map_rankings.${region_name}`
-    
+
     const data = {
         "collection": "players",
         "database": "leaderboards",
@@ -816,7 +842,7 @@ app.post('/get_rankings/player/map', async (req, res) => {
             console.log("Aborted")
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -824,11 +850,11 @@ app.post('/get_rankings/player/map', async (req, res) => {
     }
 })
 
-app.post('/get_runs/solo/map', async (req, res) =>{
+app.post('/get_runs/solo/map', async (req, res) => {
     //request = {"region_name": "string", "area_index": "integer"}
     const region_name = req.body.region_name
     const area_index = req.body.area_index
-    
+
     let pipeline
     if ("Endless Echo Hard".includes(region_name)) {
         pipeline = [
@@ -877,12 +903,12 @@ app.post('/get_runs/solo/map', async (req, res) =>{
 
     try {
         const runs = await callDatabase('aggregate', data, controller)
-        
+
         if (!res.headersSent) {
             res.send(FilterSoloRuns(runs))
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -900,7 +926,7 @@ app.post('/get_runs/solo/map/top', async (req, res) => {
 
     const region_name = req.body.region_name;
     const area_index = req.body.area_index
-  
+
     let pipeline = []
     if ("Endless Echo Hard".includes(region_name)) {
         pipeline = [
@@ -952,7 +978,7 @@ app.post('/get_runs/solo/map/top', async (req, res) => {
             res.json(FilterSoloRuns(runs, 10))
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -965,7 +991,7 @@ app.post('/get_runs/solo/map/single', async (req, res) => {
     const region_name = req.body.region_name;
     const area_index = req.body.area_index
     const username = (altList[req.body.username] || req.body.username)
-    
+
     let pipeline = []
     if ("Endless Echo Hard".includes(region_name)) {
         pipeline = [
@@ -1025,7 +1051,7 @@ app.post('/get_runs/solo/map/single', async (req, res) => {
             res.json(FilterSoloRuns(runs, 1))
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -1033,11 +1059,11 @@ app.post('/get_runs/solo/map/single', async (req, res) => {
     }
 })
 
-app.post('/get_runs/duo/map', async (req, res) =>{
+app.post('/get_runs/duo/map', async (req, res) => {
     //request = {"region_name": "string", "area_index": "integer"}
     const region_name = req.body.region_name;
     const area_index = req.body.area_index
-    
+
     let pipeline = []
     if ("Endless Echo Hard".includes(region_name)) {
         pipeline = [
@@ -1089,7 +1115,7 @@ app.post('/get_runs/duo/map', async (req, res) =>{
             res.send(FilterDuoRuns(runs))
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -1101,7 +1127,6 @@ app.post('/get_runs/duo/map/top', async (req, res) => {
     // request = {"region_name": string, "area_index": integer}
     const region_name = req.body.region_name;
     const area_index = req.body.area_index
-    
 
     let pipeline = []
     if ("Endless Echo Hard".includes(region_name)) {
@@ -1157,7 +1182,7 @@ app.post('/get_runs/duo/map/top', async (req, res) => {
             res.json(FilterDuoRuns(runs, 10))
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")
@@ -1171,7 +1196,7 @@ app.post('/get_runs/duo/map/single', async (req, res) => { // note needs huge ch
     const area_index = req.body.area_index
     const username = (altList[req.body.username] || req.body.username)
 
-    
+
     let pipeline = []
     if ("Endless Echo Hard".includes(region_name)) {
         pipeline = [
@@ -1230,11 +1255,11 @@ app.post('/get_runs/duo/map/single', async (req, res) => { // note needs huge ch
             if (run !== null) {
                 run.players.find(player => player.username === username).username = req.body.username
             }
-            
-            res.json(run)   
+
+            res.json(run)
         }
     }
-    catch (err){
+    catch (err) {
         if (err.name !== axios.CanceledError.name) {
             console.log(err)
             res.status(500).send("Internal Error")

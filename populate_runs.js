@@ -4,7 +4,7 @@ const baseURL = ""
 const apiKey = ""
 
 async function callDatabase(action, data) {
-    try{
+    try {
         const response = await axios({
             method: 'post',
             url: baseURL + action,
@@ -18,7 +18,7 @@ async function callDatabase(action, data) {
 
         return response
     }
-    catch(e) {
+    catch (e) {
         console.log(e)
     }
 }
@@ -40,9 +40,9 @@ async function postData(collection, documents) {
 
 async function limitPost(limit, collection, documents) {
     if (Number.isInteger(limit) && limit > 0) {
-        for (let i = 0 ; i < documents.length ; i = i + limit) {
+        for (let i = 0; i < documents.length; i = i + limit) {
             let limitedDocuments = []
-            for (let j = i ; j < i + limit ; j++) {
+            for (let j = i; j < i + limit; j++) {
                 if (documents[j]) {
                     limitedDocuments.push(documents[j])
                 }
@@ -50,7 +50,7 @@ async function limitPost(limit, collection, documents) {
                     break
                 }
             }
-            
+
             await postData(collection, limitedDocuments)
         }
 
@@ -106,7 +106,7 @@ function findAdjacentTimestamps(epochTimestamp, timeRange) {
     const epochTimeBefore = Math.floor(timeBefore.getTime() / 1000);
     const epochTimeAfter = Math.floor(timeAfter.getTime() / 1000);
 
-    return {"before": epochTimeBefore, "after": epochTimeAfter};
+    return { "before": epochTimeBefore, "after": epochTimeAfter };
 }
 
 function isSameDuoNames(desiredRun, differentRun) {
@@ -174,7 +174,7 @@ async function findDuoPair(desiredRun, allRuns) {
     const result = await findCloseByRuns(originalRun, desiredRun)
     return result
     */
-   return undefined
+    return undefined
 }
 
 function hasDuoRunBeenFormatted(desiredRun, allRuns) {
@@ -182,7 +182,7 @@ function hasDuoRunBeenFormatted(desiredRun, allRuns) {
         if (differentRun.region_name === desiredRun.region_name && differentRun.area_index === desiredRun.area_index) {
             if (!differentRun.interactions) {
                 // This specific run has already been formatted, so reversing the format (interactions does not exist in the new format)
-    
+
                 differentRun = {
                     "username": differentRun.players[0].username,
                     "interactions": [differentRun.players[1].username]
@@ -192,7 +192,7 @@ function hasDuoRunBeenFormatted(desiredRun, allRuns) {
             if (isSameDuoNames(desiredRun, differentRun)) {
                 return true
             }
-        }   
+        }
     }
 
     return false
@@ -234,10 +234,10 @@ async function formatDuoRuns(runs) {
                 }
 
                 duoPairs.push(formattedResult)
-            }            
-        }    
+            }
+        }
     }
-    
+
     return duoPairs
 }
 
@@ -255,16 +255,14 @@ async function formatRuns(runs) {
 
     soloRuns = formatSoloRuns(soloRuns)
     duoRuns = await formatDuoRuns(duoRuns)
-    
-    return soloRuns.concat(duoRuns)
 
-    //return runs  146423
+    return soloRuns.concat(duoRuns)
 }
 
 // Populate Players
 function calcPlayerRank(maps, desiredPlayerName) {
     const calcSoloCount = (username, runs) => {
-        for (let i = 0; i < runs.length ; i++) {
+        for (let i = 0; i < runs.length; i++) {
             if (runs[i].username === username) {
                 return i + 1
             }
@@ -272,14 +270,14 @@ function calcPlayerRank(maps, desiredPlayerName) {
         return runs.length + 1
     }
     const calcDuoCount = (username, runs) => {
-        for (let i = 0; i < runs.length ; i++) {
+        for (let i = 0; i < runs.length; i++) {
             for (const player of [runs[i].players[0].username, runs[i].players[1].username]) {
-                if (player === username){
+                if (player === username) {
                     return i + 1
                 }
             }
         }
-        
+
         return runs.length + 1
     }
 
@@ -314,6 +312,11 @@ function rankPlayers(allPlayers) {
             duo: duoRanked.findIndex(p => p.username === player.username) + 1,
             overall: overallRanked.findIndex(p => p.username === player.username) + 1
         }
+
+        if (player.username === "Br1h" || player.username === "Vikenti") {
+            console.log(player.username)
+            console.log(player.position)
+        }
     }
 }
 
@@ -335,26 +338,26 @@ function filterSoloRuns(map, newRun) {
         return map
     }
     const handleEndlessRuns = (map, newRun) => {
-        for (let i = 0 ; i < map.length ; i++) {
+        for (let i = 0; i < map.length; i++) {
             const currentRun = map[i]
 
             if (newRun.area_index > currentRun.area_index) {
                 // Put runs with higher area_indexes first
                 return addRun(i, map, newRun)
             }
-            
+
             if (newRun.area_index === currentRun.area_index) {
                 if (newRun.survival_time < currentRun.survival_time) {
                     return addRun(i, map, newRun)
                 }
-                
+
                 if (newRun.username === currentRun.username) {
                     if (newRun.area_index === currentRun.area_index) {
                         // New run is slower than current run
                         return map
                     }
                 }
-                
+
                 if (i + 1 === map.length) {
                     // Slowest Run
                     map.push(newRun)
@@ -364,98 +367,7 @@ function filterSoloRuns(map, newRun) {
             else {
                 // newRun.area_index < currentRun.area_index
                 // Skip to runs with same area index
-                for (let j = i ; j < map.length ; j++) {
-                    const cRun = map[i]
-                    if (newRun.area_index === cRun.area_index) {
-                        i = j - 1
-                        break
-                    }
-                }
-            }
-        }
-
-        return map
-    }
-
-    if (map.length < 1) {
-        map.push(newRun)
-        return map
-    }
-    
-    if ("Endless Echo Hard".includes(newRun.region_name)) {     
-        return handleEndlessRuns(map, newRun)
-    }
-
-    // Normal Runs
-    for (let i = 0 ; i < map.length ; i++) {
-        const currentRun = map[i]
-        
-        if (newRun.survival_time < currentRun.survival_time) {
-            return addRun(i, map, newRun)
-        }
-
-        if (newRun.area_index === currentRun.area_index && newRun.username === currentRun.username) {
-            // New run is slower than current run
-            return map
-        }
-        
-        if (i + 1 === map.length) {
-            // Slowest Run
-            map.push(newRun)
-            return map
-        }
-    }
-
-    return map
-}
-
-function filterDuoRuns(map, newRun) {
-    const getDuoIdentifier = (usernames) => {
-      usernames.sort()
-      return `${usernames[0]} & ${usernames[1]}`
-    }
-    const isSameDuoNames = (desiredRun, differentRun) => {
-      const desiredId = getDuoIdentifier([desiredRun.players[0].username, desiredRun.players[1].username])
-      const differentId = getDuoIdentifier([differentRun.players[0].username, differentRun.players[1].username])
-
-      return desiredId === differentId
-    }
-    const addRun = (position, map, newRun) => {
-        map = map.filter((currentRun) => (!isSameDuoNames(currentRun, newRun)));
-        map.splice(position, 0, newRun);
-    
-        return map
-    }
-    const handleEndlessRuns = (map, newRun) => {
-        for (let i = 0 ; i < map.length ; i++) {
-            const currentRun = map[i]
-
-            if (newRun.area_index > currentRun.area_index) {
-                // Put runs with higher area_indexes first
-                return addRun(i, map, newRun)
-            }
-            
-            if (newRun.area_index === currentRun.area_index) {
-                if (newRun.final_survival_time < currentRun.final_survival_time) {
-                    return addRun(i, map, newRun)
-                }
-                
-                if (isSameDuoNames(newRun, currentRun)) {
-                    if (newRun.area_index === currentRun.area_index) {
-                        // New run is slower than current run
-                        return map
-                    }
-                }
-                
-                if (i + 1 === map.length) {
-                    // Slowest Run
-                    map.push(newRun)
-                    return map
-                }
-            }
-            else{ // newRun.area_index < currentRun.area_index
-                //Skip to runs with same area index
-                for (let j = i ; j < map.length ; j++) {
+                for (let j = i; j < map.length; j++) {
                     const cRun = map[i]
                     if (newRun.area_index === cRun.area_index) {
                         i = j - 1
@@ -478,9 +390,100 @@ function filterDuoRuns(map, newRun) {
     }
 
     // Normal Runs
-    for (let i = 0 ; i < map.length ; i++) {
+    for (let i = 0; i < map.length; i++) {
         const currentRun = map[i]
-        
+
+        if (newRun.survival_time < currentRun.survival_time) {
+            return addRun(i, map, newRun)
+        }
+
+        if (newRun.area_index === currentRun.area_index && newRun.username === currentRun.username) {
+            // New run is slower than current run
+            return map
+        }
+
+        if (i + 1 === map.length) {
+            // Slowest Run
+            map.push(newRun)
+            return map
+        }
+    }
+
+    return map
+}
+
+function filterDuoRuns(map, newRun) {
+    const getDuoIdentifier = (usernames) => {
+        usernames.sort()
+        return `${usernames[0]} & ${usernames[1]}`
+    }
+    const isSameDuoNames = (desiredRun, differentRun) => {
+        const desiredId = getDuoIdentifier([desiredRun.players[0].username, desiredRun.players[1].username])
+        const differentId = getDuoIdentifier([differentRun.players[0].username, differentRun.players[1].username])
+
+        return desiredId === differentId
+    }
+    const addRun = (position, map, newRun) => {
+        map = map.filter((currentRun) => (!isSameDuoNames(currentRun, newRun)));
+        map.splice(position, 0, newRun);
+
+        return map
+    }
+    const handleEndlessRuns = (map, newRun) => {
+        for (let i = 0; i < map.length; i++) {
+            const currentRun = map[i]
+
+            if (newRun.area_index > currentRun.area_index) {
+                // Put runs with higher area_indexes first
+                return addRun(i, map, newRun)
+            }
+
+            if (newRun.area_index === currentRun.area_index) {
+                if (newRun.final_survival_time < currentRun.final_survival_time) {
+                    return addRun(i, map, newRun)
+                }
+
+                if (isSameDuoNames(newRun, currentRun)) {
+                    if (newRun.area_index === currentRun.area_index) {
+                        // New run is slower than current run
+                        return map
+                    }
+                }
+
+                if (i + 1 === map.length) {
+                    // Slowest Run
+                    map.push(newRun)
+                    return map
+                }
+            }
+            else { // newRun.area_index < currentRun.area_index
+                //Skip to runs with same area index
+                for (let j = i; j < map.length; j++) {
+                    const cRun = map[i]
+                    if (newRun.area_index === cRun.area_index) {
+                        i = j - 1
+                        break
+                    }
+                }
+            }
+        }
+
+        return map
+    }
+
+    if (map.length < 1) {
+        map.push(newRun)
+        return map
+    }
+
+    if ("Endless Echo Hard".includes(newRun.region_name)) {
+        return handleEndlessRuns(map, newRun)
+    }
+
+    // Normal Runs
+    for (let i = 0; i < map.length; i++) {
+        const currentRun = map[i]
+
         if (newRun.final_survival_time < currentRun.final_survival_time) {
             return addRun(i, map, newRun)
         }
@@ -496,7 +499,7 @@ function filterDuoRuns(map, newRun) {
             return map
         }
     }
-   
+
     return map
 }
 
@@ -513,6 +516,9 @@ function checkSpecificCase(run) {
         "Weyofae60", // Bug with mod hidden names
         "puvuo80", // Bug with mod hidden names
         "SharedAccount01", // TAS / Shared Account
+        "SharedAccount04", // TAS / Shared Account
+        "SharedAccount08", // TAS / Shared Account
+        "SharedAccount69", // TAS / Shared Account
         "helmet", // Shared Account
         "Aekiyra", // TAS
         "5302", // TAS
@@ -524,7 +530,14 @@ function checkSpecificCase(run) {
         "femalevent", // TAS
         "Ayubbie2", // TAS
         "Вишня", // TAS
-        "EvadesTAS" // TAS
+        "EvadesTAS", // TAS
+        "TAS1‍", // Sus
+        "blench", // Unknown Alt
+        "Azpect", // Unknown Alt
+        "yapper", // Unknown Alt
+        "Blue‍", // Unknown Alt
+        "Septimus", // Unknown Alt
+        "TASSLAYER", // Unknown Alt (surely not BOTSLAYER)
     ])
     const bannedIds = new Set([148714, 148802, 150085, 39029])
     const altList = { // key: AltName, value: Main Name
@@ -535,8 +548,9 @@ function checkSpecificCase(run) {
         "R0‎YqL": "R0YqL",
         "WeDieAtCC2": "R0YqL",
         "Oplus": "R0YqL",
-        "चमक" : "Bluemonkey14",
+        "चमक": "Bluemonkey14",
         "HumogousHollowWR": "Bluemonkey14",
+        "Freakbob": "Bluemonkey14",
         "Oriku": "Zxynn",
         "Aеther": "Rxpct",
         "globeX": "Invi",
@@ -557,10 +571,11 @@ function checkSpecificCase(run) {
         "Bot3": "Strat",
         "Bot4": "Strat",
         "Bot5": "Strat",
+        "thrillseeker": "Strat",
         "yespiger": "piger",
         "nopiger": "piger",
         "🐻‍❄️": "merin",
-        "begro": "tтеуmlI", 
+        "begro": "tтеуmlI",
         "Gսest9113": "9113Guest",
         "crunchypoop43": "9113Guest",
         "PoppaSnail": "9113Guest",
@@ -583,6 +598,8 @@ function checkSpecificCase(run) {
         "carnation": "Greeny",
         "Groen": "Greeny",
         "Mirage​​": "Greeny",
+        "Verdoso": "Greeny",
+        "D2A": "Proyo",
         "hoodlumgorilla69": "Unluckyuser",
         "ThatHodgeGuy": "Hodge",
         "TheSnake": "lazer3",
@@ -593,6 +610,16 @@ function checkSpecificCase(run) {
         "trentsigma": "Darkai",
         "õ": "Exobyte",
         "GayDogPower": "Exobyte",
+        "God‍": "Exobyte",
+        "Stongo": "Exobyte",
+        "Cookiezi": "Exobyte",
+        "Cr1h": "Exobyte",
+        "PaLM": "Exobyte",
+        "维生素C": "Exobyte",
+        "タスボット": "Exobyte",
+        "silence%E2%80%8D": "Exobyte",
+        "Thunderbolt": "Exobyte",
+        "Ardently": "Exobyte",
         "rainstorm": "Lunari",
         "Bo1t": "Lunari",
         "Kwazi": "denji",
@@ -601,7 +628,6 @@ function checkSpecificCase(run) {
         "CatManAlt2": "CatManPro",
         "CatManAlt3": "CatManPro",
         "CatManAlt5": "CatManPro",
-        "Cookiezi": "Ardently",
         "NameGame2": "ThenameGame",
         "NameGame3": "ThenameGame",
         "NameGame5": "ThenameGame",
@@ -613,7 +639,7 @@ function checkSpecificCase(run) {
         "Lumik3": "Lumik",
         "Lumik4": "Lumik",
         "Frauderix": "•RoSe•",
-        "•eSoR•": "•RoSe•",     
+        "•eSoR•": "•RoSe•",
         "🌔Moon🌔": "MagmaxOnly",
         "типаПРO": "GayFuryFemboy",
         "Somebody77Alt": "Somebody77",
@@ -649,7 +675,6 @@ function checkSpecificCase(run) {
         "a single friend": "a single friend",
         "rainstorm": "Lunari",
         "░▒▓गớჳӣҭӣɃ▓▒░1": "░▒▓गớჳӣҭӣɃ▓▒░",
-        
         "░▒▓गớჳӣҭӣɃ▓▒░2": "░▒▓गớჳӣҭӣɃ▓▒░",
         "𝓟𝓘𝓝𝓔𝓜𝓞2": "𝓟𝓘𝓝𝓔𝓜𝓞",
         "♔𝒢𝒜𝑀𝐸~oVeR♔✭": "♔𝒢𝒜𝑀𝐸~oVeR♔✭",
@@ -661,14 +686,15 @@ function checkSpecificCase(run) {
     const caseChanges = { // Every attribute from the run is able to be checked upon
         "hero": {
             "Euclid": 1722801600,
-            "Glob": 1722801600,
+            "Glob": 1745006400,
             "Stheno": 1722801600,
             "Demona": 1720123200,
             "Cybot": 1727463600,
-            "Factorb": 1722801600,
+            "Factorb": 1740772800,
             "Ignis": 1722801600,
             "Mortuus": 1722801600,
-            "Rime": 17233632000
+            "Rime": 17233632000,
+            "Reaper": 1742587200
         },
         "region_name": {
             "Glacial Gorge Hard": 1718568000,
@@ -679,7 +705,8 @@ function checkSpecificCase(run) {
             "Humongous Hollow": 1722801600,
             "Endless Echo": 1722801600,
             "Endless Echo Hard": 1722801600,
-            "Shifting Sands": 1722801600
+            "Shifting Sands": 1722801600,
+            "Research Lab": 1740772800
         }
     }
 
@@ -739,7 +766,9 @@ function checkSpecificCase(run) {
             "Vicious Valley Hard": 40,
             "Wacky Wonderland": 80,
             "Wacky Wonderland Hard": 80,
-            "Withering Wasteland": 40
+            "Withering Wasteland": 40,
+            "Terrifying Temple": 40,
+            "Research Lab": 40,
         }
         const multipleWinRegions = { // Key: area number, Value: Specified map end point
             "Monumental Migration": {
@@ -778,7 +807,7 @@ function checkSpecificCase(run) {
             if ("Endless Echo Hard".includes(region_name)) {
                 return region_name
             }
-    
+
             return (regions[region_name] === area_index) ? region_name : undefined
         }
     }
@@ -809,9 +838,9 @@ function checkSpecificCase(run) {
     }
     const convertDuoPlayerToSolo = (desiredPlayerName, run) => {
         let player = run.players.find(player => player.username === desiredPlayerName)
-        
+
         const { region_name, area_index, is_solo } = run
-        return {...player, region_name, area_index, is_solo }
+        return { ...player, region_name, area_index, is_solo }
     }
     const getAltName = (username) => {
         return (altList[username] || username)
@@ -830,7 +859,7 @@ function checkSpecificCase(run) {
 
         run.username = getAltName(run.username)
     }
-    else{
+    else {
         for (let player of run.players) {
             if (!validateRun(convertDuoPlayerToSolo(player.username, run))) {
                 return [run, map, false]
@@ -904,33 +933,35 @@ function populatePlayers(runs) {
         "Vicious Valley Hard": { "solo": [], "duo": [] },
         "Wacky Wonderland": { "solo": [], "duo": [] },
         "Wacky Wonderland Hard": { "solo": [], "duo": [] },
-        "Withering Wasteland": { "solo": [], "duo": [] }
+        "Withering Wasteland": { "solo": [], "duo": [] },
+        "Terrifying Temple": { "solo": [], "duo": [] },
+        "Research Lab": { "solo": [], "duo": [] },
     }
 
     for (let run of runs) {
         [run, mapName, valid] = checkSpecificCase(run)
 
-        if (valid){
+        if (valid) {
             if (run.is_solo) {
-                usernames.add(run.username);    
+                usernames.add(run.username);
                 maps[mapName].solo = filterSoloRuns(maps[mapName].solo, run)
             }
             else {
                 for (const player of run.players) {
                     usernames.add(player.username)
                 }
-    
+
                 maps[mapName].duo = filterDuoRuns(maps[mapName].duo, run)
             }
         }
     }
     console.log("Filtered all runs")
-    
+
     for (const name of usernames) {
         checkedUsers.push(formatPlayer(maps, name))
     }
     console.log("Formatted all players")
-    
+
     rankPlayers(checkedUsers)
     console.log("Ranked all players")
 
@@ -946,9 +977,9 @@ async function main() {
     let allRuns = []
 
     console.log("Total: ", total)
-    
+
     // Finding every username and valid runs (while ordering the runs)
-    for (let count = 205 ; total - count > 0 ; count += difference) {
+    for (let count = 334; total - count > 0; count += difference) {
         const start = total - count - 51
         let runs = await getRangedRuns(start - difference, start)
         runs = await formatRuns(runs)
@@ -959,8 +990,8 @@ async function main() {
         if (runs.length > 0) {
             console.log(`Run Number: ${runs[runs.length - 1].id || runs[runs.length - 1].players[1].id}, Amount of runs left: ${start - difference}`)
         }
-        
-        if (count >= total){
+
+        if (count >= total) {
             console.log(`There are no more runs left`)
             break
         }
